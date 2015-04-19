@@ -8,7 +8,7 @@ documentation = "https://github.com/tsurai/mecab-rs"
 homepage = "https://github.com/tsurai/mecab-rs"
 repository = "https://github.com/tsurai/mecab-rs"
 readme = "README.md"
-keywords = ["mecab","libmecab", "japanese", "segmentation", "morphological", "analyzer", "pos"]
+keywords = ["mecab", "libmecab", "japanese", "morphological", "analyzer"]
 
 [dependencies]
 libc = "*"
