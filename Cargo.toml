@@ -12,10 +12,3 @@ keywords = ["mecab","libmecab", "japanese", "segmentation", "morphological", "an
 
 [dependencies]
 libc = "*"
-
-[profile.test]
-opt-level = 0
-debug = true
-rpath = false
-lto = true
-debug-assertions = true

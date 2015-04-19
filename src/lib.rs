@@ -7,4 +7,3 @@ extern crate libc;
 
 pub use mecab::*;
 mod mecab;
-
