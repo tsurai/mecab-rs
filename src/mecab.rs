@@ -4,27 +4,27 @@ use std::ffi::{CStr, CString};
 use std::str;
 use libc::*;
 
-pub const MECAB_NOR_NODE          : i32 = 0;
-pub const MECAB_UNK_NODE          : i32 = 1;
-pub const MECAB_BOS_NODE          : i32 = 2;
-pub const MECAB_EOS_NODE          : i32 = 3;
-pub const MECAB_EON_NODE          : i32 = 4;
+pub const MECAB_NOR_NODE          : u8 = 0;
+pub const MECAB_UNK_NODE          : u8 = 1;
+pub const MECAB_BOS_NODE          : u8 = 2;
+pub const MECAB_EOS_NODE          : u8 = 3;
+pub const MECAB_EON_NODE          : u8 = 4;
 
-pub const MECAB_SYS_DIC           : i32 = 0;
-pub const MECAB_USR_DIC           : i32 = 1;
-pub const MECAB_UNK_DIC           : i32 = 2;
+pub const MECAB_SYS_DIC           : u8 = 0;
+pub const MECAB_USR_DIC           : u8 = 1;
+pub const MECAB_UNK_DIC           : u8 = 2;
 
-pub const MECAB_ONE_BEST          : i32 = 1;
-pub const MECAB_NBEST             : i32 = 2;
-pub const MECAB_PARTIAL           : i32 = 4;
-pub const MECAB_MARGINAL_PROB     : i32 = 8;
-pub const MECAB_ALTERNATIVE       : i32 = 16;
-pub const MECAB_ALL_MORPH         : i32 = 32;
-pub const MECAB_ALLOCATE_SENTENCE : i32 = 64;
+pub const MECAB_ONE_BEST          : u8 = 1;
+pub const MECAB_NBEST             : u8 = 2;
+pub const MECAB_PARTIAL           : u8 = 4;
+pub const MECAB_MARGINAL_PROB     : u8 = 8;
+pub const MECAB_ALTERNATIVE       : u8 = 16;
+pub const MECAB_ALL_MORPH         : u8 = 32;
+pub const MECAB_ALLOCATE_SENTENCE : u8 = 64;
 
-pub const MECAB_ANY_BOUNDARY      : i32 = 0;
-pub const MECAB_TOKEN_BOUNDARY    : i32 = 1;
-pub const MECAB_INSIDE_TOKEN      : i32 = 2;
+pub const MECAB_ANY_BOUNDARY      : u8 = 0;
+pub const MECAB_TOKEN_BOUNDARY    : u8 = 1;
+pub const MECAB_INSIDE_TOKEN      : u8 = 2;
 
 #[link(name="mecab")]
 extern {
@@ -116,9 +116,9 @@ impl Tagger {
     }
   }
 
-  pub fn partial(&self) -> i32 {
+  pub fn partial(&self) -> bool {
     unsafe {
-      mecab_get_partial(self.inner)
+      mecab_get_partial(self.inner) != 0
     }
   }
 
@@ -152,9 +152,9 @@ impl Tagger {
     }
   }
 
-  pub fn all_morphs(&self) -> i32 {
+  pub fn all_morphs(&self) -> bool {
     unsafe {
-      mecab_get_all_morphs(self.inner)
+      mecab_get_all_morphs(self.inner) != 0
     }
   }
 
@@ -164,9 +164,9 @@ impl Tagger {
     }
   }
 
-  pub fn parse(&self, latice: &Lattice) -> i32 {
+  pub fn parse(&self, latice: &Lattice) -> bool {
     unsafe {
-      mecab_parse_lattice(self.inner, latice.inner)
+      mecab_parse_lattice(self.inner, latice.inner) != 0
     }
   }
 
@@ -188,9 +188,9 @@ impl Tagger {
     }
   }
 
-  pub fn parse_nbest_init(&self, input: &str) -> i32 {
+  pub fn parse_nbest_init(&self, input: &str) -> bool {
     unsafe {
-      mecab_nbest_init(self.inner, str_to_ptr(input))
+      mecab_nbest_init(self.inner, str_to_ptr(input)) != 0
     }
   }
 
@@ -339,9 +339,9 @@ impl Lattice {
     }
   }
 
-  pub fn next(&self) -> i32 {
+  pub fn next(&self) -> bool {
     unsafe {
-      mecab_lattice_next(self.inner)
+      mecab_lattice_next(self.inner) != 0
     }
   }
 
@@ -387,9 +387,9 @@ impl Lattice {
     }
   }
 
-  pub fn has_constraint(&self) -> i32 {
+  pub fn has_constraint(&self) -> bool {
     unsafe {
-      mecab_lattice_has_constraint(self.inner)
+      mecab_lattice_has_constraint(self.inner) != 0
     }
   }
 
@@ -467,9 +467,9 @@ impl Model {
     }
   }
 
-  pub fn swap(&self, model: &Model) -> i32 {
+  pub fn swap(&self, model: &Model) -> bool {
     unsafe {
-      mecab_model_swap(self.inner, model.inner)
+      mecab_model_swap(self.inner, model.inner) != 0
     }
   }
 
