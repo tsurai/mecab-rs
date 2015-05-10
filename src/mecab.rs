@@ -516,7 +516,7 @@ struct node_t {
   surface: *const c_char,
   feature: *const c_char,
   id: c_uint,
-  length: c_uint,
+  length: c_ushort,
   rlength: c_ushort,
   rcattr: c_ushort,
   lcattr: c_ushort,
@@ -541,7 +541,7 @@ pub struct Node {
   pub surface: String,
   pub feature: String,
   pub id: u32,
-  pub length: u32,
+  pub length: u16,
   pub rlength: u16,
   pub rcattr: u16,
   pub lcattr: u16,
@@ -676,6 +676,6 @@ fn str_to_ptr(input: &str) -> *const i8 {
 
 fn ptr_to_string(ptr: *const c_char) -> String {
   unsafe {
-    str::from_utf8_unchecked(CStr::from_ptr(ptr).to_bytes()).to_string()
+    str::from_utf8_unchecked(CStr::from_ptr(ptr).to_bytes()).to_owned()
   }
 }
