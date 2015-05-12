@@ -1,30 +1,31 @@
 #![allow(non_camel_case_types)]
+#![allow(raw_pointer_derive)]
 
 use std::ffi::{CStr, CString};
 use std::str;
 use libc::*;
 
-pub const MECAB_NOR_NODE          : u8 = 0;
-pub const MECAB_UNK_NODE          : u8 = 1;
-pub const MECAB_BOS_NODE          : u8 = 2;
-pub const MECAB_EOS_NODE          : u8 = 3;
-pub const MECAB_EON_NODE          : u8 = 4;
+pub const MECAB_NOR_NODE          : i32 = 0;
+pub const MECAB_UNK_NODE          : i32 = 1;
+pub const MECAB_BOS_NODE          : i32 = 2;
+pub const MECAB_EOS_NODE          : i32 = 3;
+pub const MECAB_EON_NODE          : i32 = 4;
 
-pub const MECAB_SYS_DIC           : u8 = 0;
-pub const MECAB_USR_DIC           : u8 = 1;
-pub const MECAB_UNK_DIC           : u8 = 2;
+pub const MECAB_SYS_DIC           : i32 = 0;
+pub const MECAB_USR_DIC           : i32 = 1;
+pub const MECAB_UNK_DIC           : i32 = 2;
 
-pub const MECAB_ONE_BEST          : u8 = 1;
-pub const MECAB_NBEST             : u8 = 2;
-pub const MECAB_PARTIAL           : u8 = 4;
-pub const MECAB_MARGINAL_PROB     : u8 = 8;
-pub const MECAB_ALTERNATIVE       : u8 = 16;
-pub const MECAB_ALL_MORPH         : u8 = 32;
-pub const MECAB_ALLOCATE_SENTENCE : u8 = 64;
+pub const MECAB_ONE_BEST          : i32 = 1;
+pub const MECAB_NBEST             : i32 = 2;
+pub const MECAB_PARTIAL           : i32 = 4;
+pub const MECAB_MARGINAL_PROB     : i32 = 8;
+pub const MECAB_ALTERNATIVE       : i32 = 16;
+pub const MECAB_ALL_MORPH         : i32 = 32;
+pub const MECAB_ALLOCATE_SENTENCE : i32 = 64;
 
-pub const MECAB_ANY_BOUNDARY      : u8 = 0;
-pub const MECAB_TOKEN_BOUNDARY    : u8 = 1;
-pub const MECAB_INSIDE_TOKEN      : u8 = 2;
+pub const MECAB_ANY_BOUNDARY      : i32 = 0;
+pub const MECAB_TOKEN_BOUNDARY    : i32 = 1;
+pub const MECAB_INSIDE_TOKEN      : i32 = 2;
 
 #[link(name="mecab")]
 extern {
@@ -42,22 +43,22 @@ extern {
   fn mecab_set_all_morphs(mecab: *mut c_void, all_morphs: c_int);
   fn mecab_parse_lattice(mecab: *mut c_void, lattice: *mut c_void) -> c_int;
   fn mecab_sparse_tostr(mecab: *mut c_void, str: *const c_char) -> *const c_char;
-  fn mecab_sparse_tonode(mecab: *mut c_void, str: *const c_char) -> *const node_t;
+  fn mecab_sparse_tonode(mecab: *mut c_void, str: *const c_char) -> *const raw_node;
   fn mecab_nbest_sparse_tostr(mecab: *mut c_void, N: size_t, str: *const c_char) -> *const c_char;
   fn mecab_nbest_init(mecab: *mut c_void, str: *const c_char) -> c_int;
   fn mecab_nbest_next_tostr(mecab: *mut c_void) -> *const c_char;
-  fn mecab_nbest_next_tonode(mecab: *mut c_void) -> *const node_t;
-  fn mecab_format_node(mecab: *mut c_void, node: *const node_t) -> *const c_char;
+  fn mecab_nbest_next_tonode(mecab: *mut c_void) -> *const raw_node;
+  fn mecab_format_node(mecab: *mut c_void, node: *const raw_node) -> *const c_char;
   fn mecab_dictionary_info(mecab: *mut c_void) -> *const dictionary_info_t;
 
   fn mecab_lattice_new() -> *mut c_void;
   fn mecab_lattice_destroy(lattice: *mut c_void);
   fn mecab_lattice_clear(lattice: *mut c_void);
   fn mecab_lattice_is_available(lattice: *mut c_void) -> c_int;
-  fn mecab_lattice_get_bos_node(lattice: *mut c_void) -> *mut node_t;
-  fn mecab_lattice_get_eos_node(lattice: *mut c_void) -> *mut node_t;
-  fn mecab_lattice_get_begin_nodes(lattice: *mut c_void, pos: size_t) -> *const node_t;
-  fn mecab_lattice_get_end_nodes(lattice: *mut c_void, pos: size_t) -> *const node_t;
+  fn mecab_lattice_get_bos_node(lattice: *mut c_void) -> *mut raw_node;
+  fn mecab_lattice_get_eos_node(lattice: *mut c_void) -> *mut raw_node;
+  fn mecab_lattice_get_begin_nodes(lattice: *mut c_void, pos: size_t) -> *const raw_node;
+  fn mecab_lattice_get_end_nodes(lattice: *mut c_void, pos: size_t) -> *const raw_node;
   fn mecab_lattice_get_sentence(lattice: *mut c_void) -> *const c_char;
   fn mecab_lattice_set_sentence(lattice: *mut c_void, sentence: *const c_char);
   fn mecab_lattice_get_size(lattice: *mut c_void) -> size_t;
@@ -88,7 +89,7 @@ extern {
   fn mecab_model_swap(model: *mut c_void, new_model: *mut c_void) -> c_int;
   fn mecab_model_dictionary_info(model: *mut c_void) -> *const dictionary_info_t;
   fn mecab_model_transition_cost(model: *mut c_void, rcAttr: c_ushort, lcAttr: c_ushort) -> c_int;
-  fn mecab_model_lookup(model: *mut c_void, begin: *const c_char, end: *const c_char, lattice: *mut c_void) -> *const node_t;
+  fn mecab_model_lookup(model: *mut c_void, begin: *const c_char, end: *const c_char, lattice: *mut c_void) -> *const raw_node;
 }
 
 pub fn version() -> String {
@@ -506,11 +507,11 @@ impl Drop for Model {
 }
 
 #[repr(C)]
-struct node_t {
-  prev: *mut node_t,
-  next: *mut node_t,
-  enext: *mut node_t,
-  bnext: *mut node_t,
+struct raw_node {
+  prev: *mut raw_node,
+  next: *mut raw_node,
+  enext: *mut raw_node,
+  bnext: *mut raw_node,
   rpath: *mut c_void,
   lpath: *mut c_void,
   surface: *const c_char,
@@ -531,12 +532,43 @@ struct node_t {
   cost: c_long
 }
 
+enum Mode {
+  NEXT,
+  PREV,
+  ENEXT,
+  BNEXT
+}
+
+pub struct NodeIter {
+  current: Option<Node>,
+  mode: Mode
+}
+
+impl Iterator for NodeIter {
+  type Item = Node;
+
+  fn next(&mut self) -> Option<Node> {
+    let old = self.current.clone();
+    if old.is_some() {
+      let tmp = old.clone().unwrap();
+      self.current = match self.mode {
+        Mode::NEXT => tmp.next(),
+        Mode::PREV => tmp.prev(),
+        Mode::ENEXT => tmp.enext(),
+        Mode::BNEXT => tmp.bnext(),
+      };
+    }
+    old
+  }
+}
+
+#[derive(Clone)]
 pub struct Node {
-  inner: *const node_t,
-  prev: *mut node_t,
-  next: *mut node_t,
-  enext: *mut node_t,
-  bnext: *mut node_t,
+  inner: *const raw_node,
+  prev: *mut raw_node,
+  next: *mut raw_node,
+  enext: *mut raw_node,
+  bnext: *mut raw_node,
 
   pub surface: String,
   pub feature: String,
@@ -557,7 +589,7 @@ pub struct Node {
 }
 
 impl Node {
-  fn new(raw_ptr: *const node_t) -> Node {
+  fn new(raw_ptr: *const raw_node) -> Node {
     unsafe {
       let ref raw_node = *raw_ptr;
 
@@ -587,11 +619,25 @@ impl Node {
     }
   }
 
+  pub fn iter_prev(self) -> NodeIter {
+    NodeIter {
+      current: Some(self),
+      mode: Mode::PREV
+    }
+  }
+
   pub fn prev(&self) -> Option<Node> {
     if !self.prev.is_null() {
       Some(Node::new(self.prev))
     } else {
       None
+    }
+  }
+
+  pub fn iter_next(self) -> NodeIter {
+    NodeIter {
+      current: Some(self),
+      mode: Mode::NEXT
     }
   }
 
@@ -603,11 +649,25 @@ impl Node {
     }
   }
 
+  pub fn iter_enext(self) -> NodeIter {
+    NodeIter {
+      current: Some(self),
+      mode: Mode::ENEXT
+    }
+  }
+
   pub fn enext(&self) -> Option<Node> {
     if !self.enext.is_null() {
       Some(Node::new(self.enext))
     } else {
       None
+    }
+  }
+
+  pub fn iter_bnext(self) -> NodeIter {
+    NodeIter {
+      current: Some(self),
+      mode: Mode::BNEXT
     }
   }
 
@@ -632,6 +692,23 @@ struct dictionary_info_t {
   next: *mut dictionary_info_t
 }
 
+pub struct DictIter {
+  current: Option<DictionaryInfo>
+}
+
+impl Iterator for DictIter {
+  type Item = DictionaryInfo;
+
+  fn next(&mut self) -> Option<DictionaryInfo> {
+    let old = self.current.clone();
+    if old.is_some() {
+      self.current = old.clone().unwrap().next();
+    }
+    old
+  }
+}
+
+#[derive(Clone)]
 pub struct DictionaryInfo {
   pub filename: String,
   pub charset: String,
@@ -661,7 +738,13 @@ impl DictionaryInfo {
     }
   }
 
-  pub fn next(&self) -> Option<DictionaryInfo> {
+  pub fn iter(self) -> DictIter {
+    DictIter {
+      current: Some(self)
+    }
+  }
+
+  fn next(&self) -> Option<DictionaryInfo> {
     if !self.next.is_null() {
       Some(DictionaryInfo::new(self.next))
     } else {
