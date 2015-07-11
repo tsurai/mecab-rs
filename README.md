@@ -20,7 +20,7 @@ mecab = "*"
 ```Rust
 extern crate mecab;
 
-use mecab::{Tagger, Model};
+use mecab::Tagger;
 
 fn main() {
   let input = "太郎は次郎が持っている本を花子に渡した。";

@@ -3,6 +3,7 @@
 
 use std::ffi::{CStr, CString};
 use std::str;
+use std::ptr;
 use libc::*;
 
 pub const MECAB_NOR_NODE          : i32 = 0;
@@ -99,14 +100,16 @@ pub fn version() -> String {
 }
 
 pub struct Tagger {
-  inner: *mut c_void
+  inner: *mut c_void,
+  input: *const i8
 }
 
 impl Tagger {
-  pub fn new(arg: &str) -> Tagger {
+  pub fn new<T: Into<Vec<u8>>>(arg: T) -> Tagger {
     unsafe {
       Tagger {
-        inner: mecab_new2(str_to_ptr(arg))
+        inner: mecab_new2(str_to_ptr(arg)),
+        input: ptr::null()
       }
     }
   }
@@ -171,27 +174,37 @@ impl Tagger {
     }
   }
 
-  pub fn parse_str(&self, input: &str) -> String {
+  pub fn parse_str<T: Into<Vec<u8>>>(&self, input: T) -> String {
     unsafe {
       ptr_to_string(mecab_sparse_tostr(self.inner, str_to_ptr(input)))
     }
   }
 
-  pub fn parse_to_node(&self, input: &str) -> Node {
+  pub fn parse_to_node<T: Into<Vec<u8>>>(&mut self, input: T) -> Node {
     unsafe {
-      Node::new(mecab_sparse_tonode(self.inner, str_to_ptr(input)))
+      if !self.input.is_null() {
+        CString::from_ptr(self.input);
+      }
+
+      self.input = str_to_heap_ptr(input);
+      Node::new(mecab_sparse_tonode(self.inner, self.input))
     }
   }
 
-  pub fn parse_nbest(&self, n: u64, input: &str) -> String {
+  pub fn parse_nbest<T: Into<Vec<u8>>>(&self, n: u64, input: T) -> String {
     unsafe {
       ptr_to_string(mecab_nbest_sparse_tostr(self.inner, n, str_to_ptr(input)))
     }
   }
 
-  pub fn parse_nbest_init(&self, input: &str) -> bool {
+  pub fn parse_nbest_init<T: Into<Vec<u8>>>(&mut self, input: T) -> bool {
     unsafe {
-      mecab_nbest_init(self.inner, str_to_ptr(input)) != 0
+      if !self.input.is_null() {
+        CString::from_ptr(self.input);
+      }
+
+      self.input = str_to_heap_ptr(input);
+      mecab_nbest_init(self.inner, self.input) != 0
     }
   }
 
@@ -223,7 +236,6 @@ impl Tagger {
     }
   }
 
-  
   pub fn dictionary_info(&self) -> DictionaryInfo {
     unsafe {
       DictionaryInfo::new(mecab_dictionary_info(self.inner))
@@ -234,20 +246,26 @@ impl Tagger {
 impl Drop for Tagger {
   fn drop(&mut self) {
     unsafe {
+      if !self.input.is_null() {
+        CString::from_ptr(self.input);
+      }
+
       mecab_destroy(self.inner);
     }
   }
 }
 
 pub struct Lattice {
-  inner: *mut c_void
+  inner: *mut c_void,
+  input: *const i8
 }
 
 impl Lattice {
   pub fn new() -> Lattice {
     unsafe {
       Lattice {
-        inner: mecab_lattice_new()
+        inner: mecab_lattice_new(),
+        input: ptr::null()
       }
     }
   }
@@ -255,6 +273,9 @@ impl Lattice {
   pub fn clear(&self) {
     unsafe {
       mecab_lattice_clear(self.inner);
+      if !self.input.is_null() {
+        CString::from_ptr(self.input);
+      }
     }
   }
 
@@ -304,9 +325,14 @@ impl Lattice {
     }
   }
 
-  pub fn set_sentence(&self, sentence: &str) {
+  pub fn set_sentence<T: Into<Vec<u8>>>(&mut self, sentence: T) {
     unsafe {
-      mecab_lattice_set_sentence(self.inner, str_to_ptr(sentence));
+      if !self.input.is_null() {
+        CString::from_ptr(self.input);
+      }
+
+      self.input = str_to_heap_ptr(sentence);
+      mecab_lattice_set_sentence(self.inner, self.input);
     }
   }
 
@@ -412,13 +438,13 @@ impl Lattice {
     }
   }
 
-  pub fn set_feature_constraint(&self, begin_pos: u64, end_pos: u64, feature: &str) {
+  pub fn set_feature_constraint<T: Into<Vec<u8>>>(&self, begin_pos: u64, end_pos: u64, feature: T) {
     unsafe {
       mecab_lattice_set_feature_constraint(self.inner, begin_pos, end_pos, str_to_ptr(feature));
     }
   }
 
-  pub fn set_result(&self, result: &str) {
+  pub fn set_result<T: Into<Vec<u8>>>(&self, result: T) {
     unsafe {
       mecab_lattice_set_result(self.inner, str_to_ptr(result))
     }
@@ -435,6 +461,9 @@ impl Drop for Lattice {
   fn drop(&mut self) {
     unsafe {
       mecab_lattice_destroy(self.inner);
+      if !self.input.is_null() {
+        CString::from_ptr(self.input);
+      }
     }
   }
 }
@@ -455,7 +484,8 @@ impl Model {
   pub fn create_tagger(&self) -> Tagger {
     unsafe {
       Tagger {
-        inner: mecab_model_new_tagger(self.inner)
+        inner: mecab_model_new_tagger(self.inner),
+        input: ptr::null()
       }
     }
   }
@@ -463,7 +493,8 @@ impl Model {
   pub fn create_lattice(&self) -> Lattice {
     unsafe {
       Lattice {
-        inner: mecab_model_new_lattice(self.inner)
+        inner: mecab_model_new_lattice(self.inner),
+        input: ptr::null()
       }
     }
   }
@@ -488,7 +519,7 @@ impl Model {
 
   pub fn lookup(&self, begin: &str, len: u64, lattice: &Lattice) -> Option<Node> {
     unsafe {
-      let raw_node = mecab_model_lookup(self.inner, str_to_ptr(begin), str_to_ptr(begin).offset(len as isize), lattice.inner);
+      let raw_node = mecab_model_lookup(self.inner, str_to_heap_ptr(begin), str_to_heap_ptr(begin).offset(len as isize), lattice.inner);
       if !raw_node.is_null() {
         Some(Node::new(raw_node))
       } else {
@@ -753,8 +784,12 @@ impl DictionaryInfo {
   }
 }
 
-fn str_to_ptr(input: &str) -> *const i8 {
-  CString::new(input.as_bytes()).unwrap().as_bytes_with_nul().as_ptr() as *const i8
+fn str_to_ptr<T: Into<Vec<u8>>>(input: T) -> *const i8 {
+  CString::new(input).unwrap().as_bytes_with_nul().as_ptr() as *const i8
+}
+
+fn str_to_heap_ptr<T: Into<Vec<u8>>>(input: T) -> *const i8 {
+  CString::new(input).unwrap().into_ptr()
 }
 
 fn ptr_to_string(ptr: *const c_char) -> String {
@@ -762,3 +797,4 @@ fn ptr_to_string(ptr: *const c_char) -> String {
     str::from_utf8_unchecked(CStr::from_ptr(ptr).to_bytes()).to_owned()
   }
 }
+
