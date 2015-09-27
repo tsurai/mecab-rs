@@ -1,7 +1,7 @@
 [package]
 name = "mecab"
 license = "MIT"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Cristian Kubis <cristian.kubis@tsunix.de>"]
 description = "Safe Rust wrapper for mecab a japanese language part-of-speech and morphological analyzer library"
 documentation = "https://github.com/tsurai/mecab-rs"
