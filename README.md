@@ -26,7 +26,7 @@ fn main() {
   let input = "太郎は次郎が持っている本を花子に渡した。";
   println!("INPUT: {}", input);
 
-  let tagger = Tagger::new("");
+  let mut tagger = Tagger::new("");
 
   // gets tagged result as String
   let mut result = tagger.parse_str(input);
@@ -100,10 +100,10 @@ fn main() {
   let model = Model::new("");
 
   // create tagger based on the model
-  let tagger = model.create_tagger();
+  let mut tagger = model.create_tagger();
 
   // create lattice object per thread
-  let lattice = model.create_lattice();
+  let mut lattice = model.create_lattice();
 
   // get tagged result as string
   lattice.set_sentence(input);
@@ -197,6 +197,7 @@ fn main() {
     println!("rsize: {}", dict.rsize);
     println!("version: {}", dict.version);
   }
+}
 ```
 
 ## License
