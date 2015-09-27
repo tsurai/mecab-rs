@@ -183,7 +183,7 @@ impl Tagger {
   pub fn parse_to_node<T: Into<Vec<u8>>>(&mut self, input: T) -> Node {
     unsafe {
       if !self.input.is_null() {
-        CString::from_ptr(self.input);
+        CStr::from_ptr(self.input);
       }
 
       self.input = str_to_heap_ptr(input);
@@ -200,7 +200,7 @@ impl Tagger {
   pub fn parse_nbest_init<T: Into<Vec<u8>>>(&mut self, input: T) -> bool {
     unsafe {
       if !self.input.is_null() {
-        CString::from_ptr(self.input);
+        CStr::from_ptr(self.input);
       }
 
       self.input = str_to_heap_ptr(input);
@@ -247,7 +247,7 @@ impl Drop for Tagger {
   fn drop(&mut self) {
     unsafe {
       if !self.input.is_null() {
-        CString::from_ptr(self.input);
+        CStr::from_ptr(self.input);
       }
 
       mecab_destroy(self.inner);
@@ -274,7 +274,7 @@ impl Lattice {
     unsafe {
       mecab_lattice_clear(self.inner);
       if !self.input.is_null() {
-        CString::from_ptr(self.input);
+        CStr::from_ptr(self.input);
       }
     }
   }
@@ -328,7 +328,7 @@ impl Lattice {
   pub fn set_sentence<T: Into<Vec<u8>>>(&mut self, sentence: T) {
     unsafe {
       if !self.input.is_null() {
-        CString::from_ptr(self.input);
+        CStr::from_ptr(self.input);
       }
 
       self.input = str_to_heap_ptr(sentence);
@@ -462,7 +462,7 @@ impl Drop for Lattice {
     unsafe {
       mecab_lattice_destroy(self.inner);
       if !self.input.is_null() {
-        CString::from_ptr(self.input);
+        CStr::from_ptr(self.input);
       }
     }
   }
@@ -789,7 +789,7 @@ fn str_to_ptr<T: Into<Vec<u8>>>(input: T) -> *const i8 {
 }
 
 fn str_to_heap_ptr<T: Into<Vec<u8>>>(input: T) -> *const i8 {
-  CString::new(input).unwrap().into_ptr()
+  CString::new(input).unwrap().into_raw()
 }
 
 fn ptr_to_string(ptr: *const c_char) -> String {
