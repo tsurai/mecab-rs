@@ -191,7 +191,7 @@ impl Tagger {
     }
   }
 
-  pub fn parse_nbest<T: Into<Vec<u8>>>(&self, n: u64, input: T) -> String {
+  pub fn parse_nbest<T: Into<Vec<u8>>>(&self, n: usize, input: T) -> String {
     unsafe {
       ptr_to_string(mecab_nbest_sparse_tostr(self.inner, n, str_to_ptr(input)))
     }
@@ -297,7 +297,7 @@ impl Lattice {
     }
   }
 
-  pub fn begin_nodes(&self, pos: u64) -> Option<Node> {
+  pub fn begin_nodes(&self, pos: usize) -> Option<Node> {
     unsafe {
       let raw_node = mecab_lattice_get_begin_nodes(self.inner, pos);
       if !raw_node.is_null() {
@@ -308,7 +308,7 @@ impl Lattice {
     }
   }
 
-  pub fn end_nodes(&self, pos: u64) -> Option<Node> {
+  pub fn end_nodes(&self, pos: usize) -> Option<Node> {
     unsafe {
       let raw_node = mecab_lattice_get_end_nodes(self.inner, pos);
       if !raw_node.is_null() {
@@ -336,7 +336,7 @@ impl Lattice {
     }
   }
 
-  pub fn size(&self) -> u64 {
+  pub fn size(&self) -> usize {
     unsafe {
       mecab_lattice_get_size(self.inner)
     }

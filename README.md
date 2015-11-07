@@ -38,7 +38,7 @@ fn main() {
 
   // gets N best in sequence
   tagger.parse_nbest_init(input);
-  for i in (0..3) {
+  for i in 0..3 {
     if let Some(res) = tagger.next() {
       println!("{}:\n{}", i, res);
     }
@@ -100,7 +100,7 @@ fn main() {
   let model = Model::new("");
 
   // create tagger based on the model
-  let mut tagger = model.create_tagger();
+  let tagger = model.create_tagger();
 
   // create lattice object per thread
   let mut lattice = model.create_lattice();
@@ -144,7 +144,7 @@ fn main() {
 
   // iterate over begin and end nodes
   let len = lattice.size();
-  for i in (0..len+1) {
+  for i in 0..len+1 {
     let b = lattice.begin_nodes(i);
     let e = lattice.end_nodes(i);
 
@@ -166,7 +166,7 @@ fn main() {
   lattice.set_sentence(input);
   tagger.parse(&lattice);
 
-  for i in (0..10) {
+  for i in 0..10 {
     println!("NBEST: {}", i);
     println!("{}", lattice.to_string());
 
