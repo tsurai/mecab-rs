@@ -11,4 +11,4 @@ readme = "README.md"
 keywords = ["mecab", "libmecab", "japanese", "morphological", "analyzer"]
 
 [dependencies]
-libc = "^0.2.1"
+libc = ">=0.2.1"
