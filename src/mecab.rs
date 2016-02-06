@@ -1,10 +1,10 @@
 #![allow(non_camel_case_types)]
-#![allow(raw_pointer_derive)]
 
 use std::ffi::{CStr, CString};
 use std::str;
 use std::ptr;
-use libc::*;
+use std::os::raw::*;
+type size_t = usize;
 
 pub const MECAB_NOR_NODE          : i32 = 0;
 pub const MECAB_UNK_NODE          : i32 = 1;
@@ -616,7 +616,8 @@ pub struct Node {
   pub beta: f32,
   pub prob: f32,
   pub wcost: i16,
-  pub cost: i64
+  //use long instead of Rust integer as its size may by different
+  pub cost: c_long
 }
 
 impl Node {
