@@ -108,7 +108,7 @@ impl Tagger {
   pub fn new<T: Into<Vec<u8>>>(arg: T) -> Tagger {
     unsafe {
       Tagger {
-        inner: mecab_new2(str_to_ptr(arg)),
+        inner: mecab_new2(str_to_ptr(&CString::new(arg).unwrap())),
         input: ptr::null()
       }
     }
@@ -184,7 +184,7 @@ impl Tagger {
 
   pub fn parse_str<T: Into<Vec<u8>>>(&self, input: T) -> String {
     unsafe {
-      ptr_to_string(mecab_sparse_tostr(self.inner, str_to_ptr(input)))
+      ptr_to_string(mecab_sparse_tostr(self.inner, str_to_ptr(&CString::new(input).unwrap())))
     }
   }
 
@@ -198,7 +198,7 @@ impl Tagger {
 
   pub fn parse_nbest<T: Into<Vec<u8>>>(&self, n: usize, input: T) -> String {
     unsafe {
-      ptr_to_string(mecab_nbest_sparse_tostr(self.inner, n, str_to_ptr(input)))
+      ptr_to_string(mecab_nbest_sparse_tostr(self.inner, n, str_to_ptr(&CString::new(input).unwrap())))
     }
   }
 
@@ -442,13 +442,13 @@ impl Lattice {
 
   pub fn set_feature_constraint<T: Into<Vec<u8>>>(&self, begin_pos: u64, end_pos: u64, feature: T) {
     unsafe {
-      mecab_lattice_set_feature_constraint(self.inner, begin_pos, end_pos, str_to_ptr(feature));
+      mecab_lattice_set_feature_constraint(self.inner, begin_pos, end_pos, str_to_ptr(&CString::new(feature).unwrap()));
     }
   }
 
   pub fn set_result<T: Into<Vec<u8>>>(&self, result: T) {
     unsafe {
-      mecab_lattice_set_result(self.inner, str_to_ptr(result))
+      mecab_lattice_set_result(self.inner, str_to_ptr(&CString::new(result).unwrap()))
     }
   }
 
@@ -476,7 +476,7 @@ impl Model {
   pub fn new(args: &str) -> Model {
     unsafe {
       Model {
-        inner: mecab_model_new2(str_to_ptr(args))
+        inner: mecab_model_new2(str_to_ptr(&CString::new(args).unwrap()))
       }
     }
   }
@@ -785,17 +785,20 @@ impl DictionaryInfo {
   }
 }
 
-fn str_to_ptr<T: Into<Vec<u8>>>(input: T) -> *const i8 {
-  CString::new(input).unwrap().as_bytes_with_nul().as_ptr() as *const i8
+fn str_to_ptr(input: &CString) -> *const i8 {
+  input.as_ptr() as *const i8
 }
 
-fn str_to_heap_ptr<T: Into<Vec<u8>>>(input: T) -> *const i8 {
+fn str_to_heap_ptr<T: Into<Vec<u8>>>(input: T) -> *mut i8 {
   CString::new(input).unwrap().into_raw()
 }
 
 fn ptr_to_string(ptr: *const c_char) -> String {
   unsafe {
-    str::from_utf8_unchecked(CStr::from_ptr(ptr).to_bytes()).to_owned()
+    match str::from_utf8(CStr::from_ptr(ptr).to_bytes()) {
+      Ok(s) => s.to_owned(),
+      Err(e) => panic!("{}", e)
+    }
   }
 }
 
