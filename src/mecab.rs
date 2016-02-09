@@ -114,6 +114,14 @@ impl Tagger {
     }
   }
 
+  fn free_input(&mut self) {
+    unsafe {
+      if !self.input.is_null() {
+        CString::from_raw(self.input as *mut i8);
+      }
+    }
+  }
+
   pub fn get_last_error(&self) -> String {
     unsafe {
       ptr_to_string(mecab_strerror(self.inner))
@@ -182,10 +190,7 @@ impl Tagger {
 
   pub fn parse_to_node<T: Into<Vec<u8>>>(&mut self, input: T) -> Node {
     unsafe {
-      if !self.input.is_null() {
-        CStr::from_ptr(self.input);
-      }
-
+      self.free_input();
       self.input = str_to_heap_ptr(input);
       Node::new(mecab_sparse_tonode(self.inner, self.input))
     }
@@ -199,10 +204,7 @@ impl Tagger {
 
   pub fn parse_nbest_init<T: Into<Vec<u8>>>(&mut self, input: T) -> bool {
     unsafe {
-      if !self.input.is_null() {
-        CStr::from_ptr(self.input);
-      }
-
+      self.free_input();
       self.input = str_to_heap_ptr(input);
       mecab_nbest_init(self.inner, self.input) != 0
     }
@@ -246,11 +248,8 @@ impl Tagger {
 impl Drop for Tagger {
   fn drop(&mut self) {
     unsafe {
-      if !self.input.is_null() {
-        CStr::from_ptr(self.input);
-      }
-
       mecab_destroy(self.inner);
+      self.free_input();
     }
   }
 }
@@ -270,12 +269,18 @@ impl Lattice {
     }
   }
 
+  fn free_input(&self) {
+    unsafe {
+      if !self.input.is_null() {
+        CString::from_raw(self.input as *mut i8);
+      }
+    }
+  }
+
   pub fn clear(&self) {
     unsafe {
       mecab_lattice_clear(self.inner);
-      if !self.input.is_null() {
-        CStr::from_ptr(self.input);
-      }
+      self.free_input();
     }
   }
 
@@ -327,10 +332,7 @@ impl Lattice {
 
   pub fn set_sentence<T: Into<Vec<u8>>>(&mut self, sentence: T) {
     unsafe {
-      if !self.input.is_null() {
-        CStr::from_ptr(self.input);
-      }
-
+      self.free_input();
       self.input = str_to_heap_ptr(sentence);
       mecab_lattice_set_sentence(self.inner, self.input);
     }
@@ -461,9 +463,7 @@ impl Drop for Lattice {
   fn drop(&mut self) {
     unsafe {
       mecab_lattice_destroy(self.inner);
-      if !self.input.is_null() {
-        CStr::from_ptr(self.input);
-      }
+      self.free_input();
     }
   }
 }
