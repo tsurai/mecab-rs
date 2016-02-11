@@ -4,9 +4,12 @@ Safe Rust wrapper for [mecab](https://taku910.github.io/mecab/) a japanese langu
 
 ## Usage
 
-The wrapper is almost identical to the C++ interface of mecab with the addition of various iterator for comfortable data access. A detailed documentation of the wrapper will follow when Rust 1.0 is finally out and stable.
+The wrapper is almost identical to the C++ interface of mecab with the addition of various iterator for comfortable data access. It is build with the latest version of mecab v0.996.
 
-The basic usage can be seen in the following examples.
+## Windows
+
+The easiest way is to use the [prebuilt library](https://mecab.googlecode.com/svn/trunk/mecab/doc/index.html#download) with the MSVC ABI rust version. Using the gcc toolchain requires a few adjustments as [DoumanAsh](https://github.com/DoumanAsh) was so kind to [research in this issue](https://github.com/tsurai/mecab-rs/issues/3).
+Using mecab-rs with the Windows commandline is not recommended and can cause [undefined behavior](https://github.com/tsurai/mecab-rs/issues/3#issuecomment-182297235) if you are not using the correct codepage and a font that supports japanese character.
 
 ## Examples
 
