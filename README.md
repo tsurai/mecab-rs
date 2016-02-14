@@ -8,8 +8,15 @@ The wrapper is almost identical to the C++ interface of mecab with the addition 
 
 ## Windows
 
-The easiest way is to use the [prebuilt library](https://mecab.googlecode.com/svn/trunk/mecab/doc/index.html#download) with the MSVC ABI rust version. Using the gcc toolchain requires a few adjustments as [DoumanAsh](https://github.com/DoumanAsh) was so kind to [research in this issue](https://github.com/tsurai/mecab-rs/issues/3).
+Both Windows Rust versions (MSVC ABI and gcc toolchain) can just use the [prebuilt 32bit library](https://mecab.googlecode.com/svn/trunk/mecab/doc/index.html#download).
 Using mecab-rs with the Windows commandline is not recommended and can cause [undefined behavior](https://github.com/tsurai/mecab-rs/issues/3#issuecomment-182297235) if you are not using the correct codepage and a font that supports japanese character.
+
+CMake & 64bit library:
+* [CMake config for mecab](https://drive.google.com/file/d/0B7w3ZGc8CTgqRVo0Snp2ZzBTNkk/view?usp=sharing)
+* [64bit MSVC library and binaries](https://drive.google.com/file/d/0B7w3ZGc8CTgqSmtrM2JCd3VXaVk/view?usp=sharing)
+* [64bit GCC library and binaries](https://drive.google.com/file/d/0B7w3ZGc8CTgqUjJweENpa2dvcG8/view?usp=sharing)
+
+Thanks to [@DoumanAsh](https://github.com/DoumanAsh) for providing these files
 
 ## Examples
 
