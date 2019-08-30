@@ -1,6 +1,7 @@
 #![allow(non_camel_case_types)]
 
 use std::ffi::{CStr, CString};
+use std::default::Default;
 use std::str;
 use std::ptr;
 use std::os::raw::*;
@@ -437,6 +438,12 @@ impl Drop for Lattice {
     }
 }
 
+impl Default for Lattice {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub struct Model {
     inner: *mut c_void,
 }
@@ -585,7 +592,7 @@ pub struct Node {
 impl Node {
     fn new(raw_ptr: *const raw_node) -> Node {
         unsafe {
-            let ref raw_node = *raw_ptr;
+            let raw_node = &*raw_ptr;
 
             Node {
                 inner: raw_ptr,
@@ -717,7 +724,7 @@ pub struct DictionaryInfo {
 impl DictionaryInfo {
     fn new(raw_ptr: *const dictionary_info_t) -> DictionaryInfo {
         unsafe {
-            let ref dict = *raw_ptr;
+            let dict = &*raw_ptr;
 
             DictionaryInfo {
                 next: dict.next,
