@@ -12,6 +12,7 @@ Both Windows Rust versions (MSVC ABI and gcc toolchain) can just use the [prebui
 Using mecab-rs with the Windows commandline is not recommended and can cause [undefined behavior](https://github.com/tsurai/mecab-rs/issues/3#issuecomment-182297235) if you are not using the correct codepage and a font that supports japanese character.
 
 CMake & 64bit library:
+* [mecab fork](https://github.com/DoumanAsh/mecab) with added CMake support
 * [CMake config for mecab](https://drive.google.com/file/d/0B7w3ZGc8CTgqRVo0Snp2ZzBTNkk/view?usp=sharing)
 * [64bit MSVC library and binaries](https://drive.google.com/file/d/0B7w3ZGc8CTgqSmtrM2JCd3VXaVk/view?usp=sharing)
 * [64bit GCC library and binaries](https://drive.google.com/file/d/0B7w3ZGc8CTgqUjJweENpa2dvcG8/view?usp=sharing)
