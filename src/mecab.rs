@@ -113,7 +113,7 @@ pub fn version() -> String {
 
 pub struct Tagger {
     inner: *mut c_void,
-    input: *const i8,
+    input: *const c_char,
 }
 
 impl Tagger {
@@ -129,7 +129,7 @@ impl Tagger {
     fn free_input(&mut self) {
         unsafe {
             if !self.input.is_null() {
-                CString::from_raw(self.input as *mut i8);
+                let _ = CString::from_raw(self.input as *mut c_char);
             }
         }
     }
@@ -254,7 +254,7 @@ impl Drop for Tagger {
 
 pub struct Lattice {
     inner: *mut c_void,
-    input: *const i8,
+    input: *const c_char,
 }
 
 impl Lattice {
@@ -270,7 +270,7 @@ impl Lattice {
     fn free_input(&self) {
         unsafe {
             if !self.input.is_null() {
-                CString::from_raw(self.input as *mut i8);
+                let _ = CString::from_raw(self.input as *mut c_char);
             }
         }
     }
@@ -752,11 +752,11 @@ impl DictionaryInfo {
     }
 }
 
-fn str_to_ptr(input: &CString) -> *const i8 {
-    input.as_ptr() as *const i8
+fn str_to_ptr(input: &CString) -> *const c_char {
+    input.as_ptr()
 }
 
-fn str_to_heap_ptr<T: Into<Vec<u8>>>(input: T) -> *mut i8 {
+fn str_to_heap_ptr<T: Into<Vec<u8>>>(input: T) -> *mut c_char {
     CString::new(input).unwrap().into_raw()
 }
 
