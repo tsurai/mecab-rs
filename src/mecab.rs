@@ -5,6 +5,7 @@ use std::default::Default;
 use std::str;
 use std::ptr;
 use std::os::raw::*;
+use std::marker::Send;
 type size_t = usize;
 
 pub const MECAB_NOR_NODE: i32 = 0;
@@ -447,6 +448,9 @@ impl Default for Lattice {
 pub struct Model {
     inner: *mut c_void,
 }
+
+unsafe impl Send for Model {}
+unsafe impl Sync for Model {}
 
 impl Model {
     pub fn new(args: &str) -> Model {
